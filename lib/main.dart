@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'quiz_brain.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
+
+QuizBrain quizBrain = QuizBrain();
 
 void main() => runApp(Quizzler());
 
@@ -28,6 +32,48 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
+  List<Icon> answer = [];
+
+  void checkAnswer(bool userAnswer) {
+    setState(() {
+      if (quizBrain.isFinished() == true) {
+        Alert(
+          context: context,
+          title: "Quiz is Finished",
+          desc: "Start Again.",
+          buttons: [
+            DialogButton(
+              child: Text(
+                "COOL",
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+              onPressed: () => Navigator.pop(context),
+              width: 120,
+            )
+          ],
+        ).show();
+        answer = [];
+      } else {
+        if (userAnswer == quizBrain.getAnswer()) {
+          answer.add(
+            Icon(
+              Icons.check,
+              color: Colors.green,
+            ),
+          );
+        } else {
+          answer.add(
+            Icon(
+              Icons.close,
+              color: Colors.red,
+            ),
+          );
+        }
+        quizBrain.getNextQuestion();
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -38,7 +84,7 @@ class _QuizPageState extends State<QuizPage> {
             flex: 3,
             child: Center(
               child: Text(
-                'Your Question goes here',
+                quizBrain.getQuestion(),
                 style: TextStyle(fontSize: 20.0, color: Colors.white),
               ),
             ),
@@ -48,7 +94,7 @@ class _QuizPageState extends State<QuizPage> {
               padding: const EdgeInsets.all(16.0),
               child: FlatButton(
                 onPressed: () {
-                  print('True pressed');
+                  checkAnswer(true);
                 },
                 color: Colors.green,
                 child: Text(
@@ -63,7 +109,7 @@ class _QuizPageState extends State<QuizPage> {
               padding: const EdgeInsets.all(16.0),
               child: FlatButton(
                 onPressed: () {
-                  print('False pressed');
+                  checkAnswer(false);
                 },
                 color: Colors.red,
                 child: Text(
@@ -76,16 +122,7 @@ class _QuizPageState extends State<QuizPage> {
             ),
           ),
           Row(
-            children: <Widget>[
-              Icon(
-                Icons.check,
-                color: Colors.green,
-              ),
-              Icon(
-                Icons.close,
-                color: Colors.red,
-              ),
-            ],
+            children: answer,
           ),
         ],
       ),
